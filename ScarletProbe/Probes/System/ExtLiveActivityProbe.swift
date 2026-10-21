@@ -1,5 +1,5 @@
 import SwiftUI
-import ActivityKit
+@preconcurrency import ActivityKit
 
 /// Тест 17: Live Activity (ActivityKit) — запуск, обновление, завершение.
 @MainActor
