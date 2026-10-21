@@ -1,0 +1,113 @@
+name: Build unsigned IPA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ScarletProbe (unsigned)
+    runs-on: macos-latest
+
+    env:
+      PROJECT: ScarletProbe.xcodeproj
+      SCHEME: ScarletProbe
+      CONFIGURATION: Release
+      ARCHIVE_PATH: build/ScarletProbe.xcarchive
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select newest Xcode (iOS 26 SDK)
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Выбираем самый новый установленный Xcode (нужен SDK iOS 26).
+          XCODE_APP="$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1 || true)"
+          if [ -z "${XCODE_APP}" ]; then
+            XCODE_APP="/Applications/Xcode.app"
+          fi
+          echo "Используем Xcode: ${XCODE_APP}"
+          sudo xcode-select -s "${XCODE_APP}/Contents/Developer"
+          echo "--- xcodebuild -version ---"
+          xcodebuild -version
+          echo "--- установленные SDK ---"
+          xcodebuild -showsdks
+
+      - name: Install XcodeGen
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew install xcodegen
+          xcodegen --version
+
+      - name: Generate Xcode project
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodegen generate
+          echo "--- схемы и таргеты проекта ---"
+          xcodebuild -list -project "${PROJECT}"
+
+      - name: Archive without code signing
+        shell: bash
+        run: |
+          set -o pipefail
+          set -eu
+          mkdir -p build
+          xcodebuild archive \
+            -project "${PROJECT}" \
+            -scheme "${SCHEME}" \
+            -configuration "${CONFIGURATION}" \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$PWD/${ARCHIVE_PATH}" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_ENTITLEMENTS="" \
+            DEVELOPMENT_TEAM="" \
+            | tee build/xcodebuild.log
+          # Отключение подписи передаётся как build settings и применяется ко всем
+          # таргетам схемы (включая встраиваемое расширение ScarletProbeWidget).
+
+      - name: Package unsigned IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Структура архива может отличаться — ищем .app динамически (диагностика).
+          echo "--- .app внутри архива ---"
+          find "${ARCHIVE_PATH}/Products/Applications" -maxdepth 1 -name "*.app"
+          APP_PATH="$(find "${ARCHIVE_PATH}/Products/Applications" -maxdepth 1 -name "*.app" | head -1)"
+          if [ -z "${APP_PATH}" ]; then
+            echo "Ошибка: .app не найден в архиве" >&2
+            find "${ARCHIVE_PATH}" -name "*.app" || true
+            exit 1
+          fi
+          echo "Найден .app: ${APP_PATH}"
+          rm -rf Payload
+          mkdir -p Payload
+          cp -R "${APP_PATH}" Payload/
+          # Внутри .ipa расширение уже встроено в .app/PlugIns — отдельно не пакуем.
+          zip -qry ScarletProbe.ipa Payload
+          echo "--- содержимое IPA ---"
+          unzip -l ScarletProbe.ipa
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ScarletProbe-ipa
+          path: ScarletProbe.ipa
+          if-no-files-found: error
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ScarletProbe-build-log
+          path: build/xcodebuild.log
+          if-no-files-found: ignore

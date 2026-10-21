@@ -62,3 +62,11 @@ targets:
     dependencies:
       - sdk: WidgetKit.framework
       - sdk: SwiftUI.framework
+
+schemes:
+  ScarletProbe:
+    build:
+      targets:
+        ScarletProbe: all
+    archive:
+      config: Release
