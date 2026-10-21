@@ -39,13 +39,12 @@ final class ExtWidgetProbe: ProbeTest {
         // Проверяем, установлен ли уже виджет.
         var installedFound = false
         do {
-            let infos = try await WidgetCenter.shared.getCurrentConfigurations()
-            if infos.isEmpty {
+            let kinds = try await Self.installedWidgetKinds()
+            if kinds.isEmpty {
                 lines.append("getCurrentConfigurations: установленных виджетов не найдено.")
             } else {
                 installedFound = true
-                let kinds = infos.map { $0.kind }.joined(separator: ", ")
-                lines.append("getCurrentConfigurations: установлено виджетов \(infos.count) (\(kinds)).")
+                lines.append("getCurrentConfigurations: установлено виджетов \(kinds.count) (\(kinds.joined(separator: ", "))).")
             }
         } catch {
             lines.append("getCurrentConfigurations: ошибка\n\(ProbeLogger.describe(error))")
@@ -59,6 +58,22 @@ final class ExtWidgetProbe: ProbeTest {
             return .ok(details)
         }
         return .partial(details)
+    }
+
+    /// Async-обёртка над `getCurrentConfigurations(_:)`: в этом SDK async-вариант не
+    /// синтезируется (WidgetInfo не Sendable), поэтому забираем только Sendable-строки `kind`
+    /// внутри completion-блока и переносим их через continuation.
+    nonisolated static func installedWidgetKinds() async throws -> [String] {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[String], any Error>) in
+            WidgetCenter.shared.getCurrentConfigurations { result in
+                switch result {
+                case .success(let infos):
+                    continuation.resume(returning: infos.map { $0.kind })
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
     }
 }
 
@@ -74,7 +89,7 @@ private struct ExtWidgetDetailView: View {
             Section("App Group") {
                 Text(appGroupAvailable ? "Доступен: \(AppGroup.identifier)" : "НЕ доступен (nil)")
                     .font(.footnote.monospaced())
-                    .foregroundStyle(appGroupAvailable ? .primary : .red)
+                    .foregroundStyle(appGroupAvailable ? Color.primary : Color.red)
             }
             Section("Текущее значение в App Group") {
                 Text("widgetText: \(currentText)")

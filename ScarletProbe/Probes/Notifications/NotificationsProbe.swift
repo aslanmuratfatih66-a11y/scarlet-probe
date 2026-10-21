@@ -84,7 +84,7 @@ final class NotificationsProbe: ProbeTest {
             failures.append("с кнопками")
         }
 
-        let pending = await center.getPendingNotificationRequests()
+        let pending = await Self.pendingInfos()
         var details = """
         Статус авторизации: \(statusText)
         Запланировано: \(scheduled.isEmpty ? "ничего" : scheduled.joined(separator: ", "))
@@ -127,10 +127,21 @@ final class NotificationsProbe: ProbeTest {
     // MARK: - detailView helpers
 
     func loadPending() async -> [PendingInfo] {
-        let requests = await UNUserNotificationCenter.current().getPendingNotificationRequests()
-        return requests.map { request in
-            let repeats = (request.trigger as? UNTimeIntervalNotificationTrigger)?.repeats ?? false
-            return PendingInfo(id: request.identifier, body: request.content.body, repeats: repeats)
+        await Self.pendingInfos()
+    }
+
+    /// Async-обёртка над `getPendingNotificationRequests(completionHandler:)`: в этом SDK
+    /// async-вариант не синтезируется (параметр не Sendable), поэтому мапим в Sendable-тип
+    /// `PendingInfo` прямо в completion-блоке и только его переносим через continuation.
+    nonisolated static func pendingInfos() async -> [PendingInfo] {
+        await withCheckedContinuation { (continuation: CheckedContinuation<[PendingInfo], Never>) in
+            UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+                let infos = requests.map { request -> PendingInfo in
+                    let repeats = (request.trigger as? UNTimeIntervalNotificationTrigger)?.repeats ?? false
+                    return PendingInfo(id: request.identifier, body: request.content.body, repeats: repeats)
+                }
+                continuation.resume(returning: infos)
+            }
         }
     }
 

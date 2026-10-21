@@ -23,11 +23,8 @@ final class BarcodeScannerProbe: ProbeTest {
         lines.append("DataScannerViewController.isSupported: \(supported)")
 
         if supported {
-            // isAvailable — свойство экземпляра (камера, разрешение, не в многозадачном режиме).
-            let scanner = DataScannerViewController(
-                recognizedDataTypes: [.barcode(symbologies: [.ean13, .ean8])]
-            )
-            lines.append("isAvailable: \(scanner.isAvailable)")
+            // isAvailable — тип-свойство (камера, разрешение, не в многозадачном режиме).
+            lines.append("isAvailable: \(DataScannerViewController.isAvailable)")
         } else {
             lines.append("isAvailable: пропущено (устройство не поддерживается)")
         }
@@ -122,7 +119,7 @@ private struct DataScannerRepresentable: UIViewControllerRepresentable {
 
     func updateUIViewController(_ scanner: DataScannerViewController, context: Context) {
         guard !context.coordinator.started else { return }
-        guard scanner.isAvailable else { return }
+        guard DataScannerViewController.isAvailable else { return }
         do {
             try scanner.startScanning()
             context.coordinator.started = true
