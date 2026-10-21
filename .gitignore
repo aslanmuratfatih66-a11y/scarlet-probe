@@ -1,0 +1,13 @@
+# Xcode / Swift
+*.xcodeproj
+*.xcworkspace
+!*.xcodeproj/project.xcworkspace
+xcuserdata/
+DerivedData/
+build/
+.build/
+*.ipa
+*.xcarchive
+Payload/
+.swiftpm/
+.DS_Store

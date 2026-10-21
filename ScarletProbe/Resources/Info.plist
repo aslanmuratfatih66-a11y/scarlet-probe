@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>ru</string>
+	<key>CFBundleDisplayName</key>
+	<string>ScarletProbe</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.local.scarletprobe</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>scarletprobe</string>
+			</array>
+		</dict>
+	</array>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+	</dict>
+	<key>UILaunchScreen</key>
+	<dict/>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>arm64</string>
+	</array>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>audio</string>
+		<string>fetch</string>
+		<string>processing</string>
+		<string>remote-notification</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.local.scarletprobe.refresh</string>
+		<string>com.local.scarletprobe.processing</string>
+	</array>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>neverssl.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>Уведомления нужны, чтобы проверить локальные и push-уведомления.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Доступ к движению нужен, чтобы проверить подсчёт шагов через CoreMotion.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Доступ к «Здоровью» нужен, чтобы прочитать шаги, калории и вес для проверки HealthKit.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Запись в «Здоровье» нужна, чтобы проверить сохранение тестового веса.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Геопозиция нужна, чтобы проверить геолокацию и построить маршрут на карте.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Постоянный доступ к геопозиции нужен, чтобы проверить фоновые обновления местоположения.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Постоянный доступ к геопозиции нужен, чтобы проверить фоновые обновления местоположения.</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Доступ к медиатеке нужен, чтобы показать текущий трек Apple Music.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Камера нужна, чтобы проверить съёмку и сканирование штрихкодов.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Доступ к фото нужен, чтобы проверить выбор фотографии.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Доступ к фото нужен, чтобы проверить сохранение фотографии.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Микрофон нужен, чтобы проверить распознавание речи.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Распознавание речи нужно, чтобы проверить SFSpeechRecognizer на русском языке.</string>
+	<key>NSAlarmKitUsageDescription</key>
+	<string>Будильники нужны, чтобы проверить AlarmKit: будильник через минуту и таймер.</string>
+</dict>
+</plist>
